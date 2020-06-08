@@ -6,6 +6,7 @@ exports.up = function(knex) {
         table.string('id_livro').references('idLivro').inTable('livros');
         table.date('dataDevolucao').notNullable();
         table.date('dataEmprestimo').notNullable();
+        table.boolean('finalizado');
         table.boolean('atraso');
     });
   
