@@ -4,7 +4,6 @@ exports.up = function(knex) {
         table.string('idLivro').primary();
         table.string('nome').notNullable();
         table.string('autor').notNullable();
-        table.string('genero').notNullable();
         table.boolean('disponivel').notNullable();
     });  
 };

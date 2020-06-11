@@ -7,21 +7,16 @@ const LivrosController = require('./controllers/LivrosController');
 
 const routes = express.Router();
 
-routes.post('/logon', UsuarioController);
-routes.put('/logon/alterar-senha', UsuarioController);
+routes.post('/logon', UsuarioController.criarCadastro);
+routes.get('/logon', UsuarioController.index);
 
-routes.post('/emprestimo/novo', EmprestimoController);
-routes.get('/emprestimo/consultar', EmprestimoController);
-routes.put('/emprestimo/', EmprestimoController);
+routes.post('/livros', LivrosController.novoLivro);
+routes.get('/livros', LivrosController.index);
 
-routes.post('estudante/novo', EstudanteController);
-routes.get('estudante/consulta/', EstudanteController);
-routes.put('estudante/alterar', EstudanteController);
-routes.delete('estudante/', EstudanteController);
+routes.post('/estudante', EstudanteController.novoEstudante);
+routes.get('/estudante', EstudanteController.index);
 
-routes.post('livros/novo', LivrosController);
-routes.get('livros/consulta', LivrosController);
-routes.put('livros/alterar', LivrosController);
-routes.delete('livros/', LivrosController);
+routes.post('/emprestimo', EmprestimoController.novoEmprestimo);
+routes.get('/emprestimo', EmprestimoController.index);
 
 module.exports = routes;
