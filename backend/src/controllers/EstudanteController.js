@@ -1,5 +1,6 @@
 const connection = require('../database/connection');
 const crypto = require('crypto');
+const { where } = require('../database/connection');
 
 module.exports = {
 
@@ -25,5 +26,13 @@ module.exports = {
         })
 
         return response.json({idEstudante});
+    },
+
+    async alterarEstudante(request, response){
+
+    },
+
+    async deletarEstudante(request, response){
+        
     }
 }

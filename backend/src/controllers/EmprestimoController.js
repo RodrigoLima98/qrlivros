@@ -13,13 +13,43 @@ module.exports = {
 
         const {id_estudante, id_livro} = request.body;
 
-        const dataEmprestimo = dataAtual();
+        const codigo = crypto.randomBytes(10).toString('HEX');
+
         const dataDevolucao = somarDataAtual(7);
+        const dataEmprestimo = dataAtual();
 
         const finalizado = false;
         const atraso = false;
 
-        const codigo = crypto.randomBytes(10).toString('HEX');
+
+        const validaIdEstudante = await connection('estudante')
+        .where('idEstudante', id_estudante)
+        .select('idEstudante')
+        .first();
+
+        const validaIdLivro = await connection('livros')
+        .where('idLivro', id_livro)
+        .select('idLivro')
+        .first();
+
+        const validaDisponivel = await connection('livros')
+        .where('idLivro', id_livro)
+        .select('disponivel')
+        .first();
+
+
+        if(!validaIdEstudante || !validaIdLivro){
+            return response.status(400).json({error: 'Id inválido'})
+        }
+
+        if(validaDisponivel){
+            console.log(validaDisponivel)
+        }
+
+
+        await connection('livros')
+        .where('idLivro', id_livro)
+        .update('disponivel', false);
 
         await connection('emprestimo').insert({
             codigo,
@@ -31,11 +61,14 @@ module.exports = {
             atraso,
         })
 
-        return response.json({codigo});
-    }
+        return response.json({codigo});  
+    },
 
-    
+    async deletarEmprestimo(request, response){
+        
+    }
 }
+
 
 function dataAtual(){
     var date = new Date();
@@ -48,7 +81,6 @@ function dataAtual(){
 
     return data;
 }
-
 
 function somarDataAtual(num){
     var date = new Date();
@@ -63,7 +95,6 @@ function somarDataAtual(num){
     }
 
     data = formatDate(data);
-
 
     return data;
 }

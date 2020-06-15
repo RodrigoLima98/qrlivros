@@ -23,5 +23,13 @@ module.exports = {
         })
 
         return response.json({idLivro, disponivel});
+    },
+
+    async alterarLivro(request, response){
+
+    },
+
+    async deletarLivro(request, response){
+        
     }
 }

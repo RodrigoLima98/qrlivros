@@ -14,6 +14,17 @@ module.exports = {
 
         const id = crypto.randomBytes(10).toString('HEX');
 
+        const verificaEmail = await connection('usuario')
+        .where('email', email)
+        .select('email')
+        .first();
+
+
+        if(verificaEmail){
+            return response.status(400).json({error: 'Email ja cadastrado'})      
+        }
+
+
         await connection('usuario').insert({
             id,
             nomeBiblioteca,
@@ -21,6 +32,25 @@ module.exports = {
             senha,
         })
 
-        return response.json({nomeBiblioteca});
+        return response.json({id});
+    },
+
+    async alterarSenha(request, response){
+        const {email, senha} = request.body;
+
+        const verificaEmail = await connection('usuario')
+        .where('email', email)
+        .select('email')
+        .first();
+
+        if(verificaEmail){
+            await connection('usuario')
+            .where('email', email)
+            .update('senha', senha);
+
+            return response.json(senha);
+        }
+
+        return response.status(400).json({error: 'Email inválido'})
     }
 }
