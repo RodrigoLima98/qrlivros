@@ -21,9 +21,12 @@ module.exports = {
 
 
         if(verificaEmail){
-            return response.status(400).json({error: 'Email ja cadastrado'})      
+            return response.status(400).json({error: 'Email já cadastrado'})  
         }
 
+        if(nomeBiblioteca == '' || email == '' || senha == ''){
+            return response.status(400).json({error: 'Os campos não podem estar vazios'}) 
+        }
 
         await connection('usuario').insert({
             id,
@@ -44,6 +47,11 @@ module.exports = {
         .first();
 
         if(verificaEmail){
+            if(senha == ''){
+                return response.status(400).json({error: 'Os campos não podem estar vazios'}) 
+            }
+
+            
             await connection('usuario')
             .where('email', email)
             .update('senha', senha);

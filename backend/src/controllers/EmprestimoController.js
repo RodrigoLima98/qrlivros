@@ -1,5 +1,6 @@
 const connection = require('../database/connection');
 const crypto = require('crypto');
+const { update, select } = require('../database/connection');
 
 module.exports = {
 
@@ -11,7 +12,7 @@ module.exports = {
 
     async novoEmprestimo(request, response){
 
-        const {id_estudante, id_livro} = request.body;
+        const {rg_estudante, id_livro} = request.body;
 
         const codigo = crypto.randomBytes(10).toString('HEX');
 
@@ -21,10 +22,9 @@ module.exports = {
         const finalizado = false;
         const atraso = false;
 
-
-        const validaIdEstudante = await connection('estudante')
-        .where('idEstudante', id_estudante)
-        .select('idEstudante')
+        const validaRg = await connection('estudante')
+        .where('rg', rg_estudante)
+        .select('rg')
         .first();
 
         const validaIdLivro = await connection('livros')
@@ -32,20 +32,21 @@ module.exports = {
         .select('idLivro')
         .first();
 
-        const validaDisponivel = await connection('livros')
+        const verificaDisponivel = await connection('livros')
         .where('idLivro', id_livro)
+        .where('disponivel', false)
         .select('disponivel')
         .first();
 
 
-        if(!validaIdEstudante || !validaIdLivro){
+        if(!validaRg || !validaIdLivro){
             return response.status(400).json({error: 'Id inválido'})
         }
 
-        if(validaDisponivel){
-            console.log(validaDisponivel)
+        if(verificaDisponivel){
+            return response.status(400).json({error: 'Livro indisponível'})
         }
-
+        
 
         await connection('livros')
         .where('idLivro', id_livro)
@@ -53,7 +54,7 @@ module.exports = {
 
         await connection('emprestimo').insert({
             codigo,
-            id_estudante,
+            rg_estudante,
             id_livro,
             dataDevolucao,
             dataEmprestimo,
@@ -64,8 +65,78 @@ module.exports = {
         return response.json({codigo});  
     },
 
-    async deletarEmprestimo(request, response){
+    async finalizarEmprestimo(request, response){
+        const {codigo} = request.body;
+
+        const validaCodigo = await connection('emprestimo')
+        .where('codigo', codigo)
+        .select('codigo')
+        .first();
+  
         
+        if(validaCodigo){
+            const verificaFinalizado = await connection('emprestimo')
+            .where('codigo', codigo)
+            .where('finalizado', true)
+            .select('finalizado')
+            .first();
+
+
+            if(verificaFinalizado){
+                return response.status(400).json({error: 'Empréstimo já finalizado'})
+            }
+            
+
+            const {id_livro} = await connection('emprestimo')
+            .where('codigo', codigo)
+            .select('id_livro')
+            .first();
+
+
+            await connection('livros')
+            .where('idLivro', id_livro)
+            .update('disponivel', true);
+           
+            await connection('emprestimo')
+            .where('codigo', codigo)
+            .update('finalizado', true);
+
+            return response.json(codigo);
+        }
+
+        return response.status(400).json({error: 'Código não encontrado'})
+    },
+
+    async deletarEmprestimo(request, response){
+        const {codigo} = request.params;
+
+        const validaCodigo = await connection('emprestimo')
+        .where('codigo', codigo)
+        .select('codigo')
+        .first();
+
+
+        if(validaCodigo){
+            const verificaFinalizado = await connection('emprestimo')
+            .where('codigo', codigo)
+            .where('finalizado', false)
+            .select('finalizado')
+            .first();
+
+
+            if(verificaFinalizado){
+                return response.status(400).json({error: 'Empréstimo ainda está em andamento'})
+            }
+
+
+            await connection('emprestimo')
+            .where('codigo',codigo)
+            .delete();
+
+            return response.json(codigo);
+        }
+
+        return response.status(400).json({error: 'Código não encontrado'})
     }
 }
 

@@ -16,16 +16,17 @@ routes.put('/cadastro/alterar-senha', UsuarioController.alterarSenha);
 
 routes.get('/livros', LivrosController.index);
 routes.post('/livros', LivrosController.novoLivro);
-routes.put('livros', LivrosController.alterarLivro);
-routes.delete('livros', LivrosController.deletarLivro);
+routes.put('/livros/:idLivro', LivrosController.alterarLivro);
+routes.delete('/livros/:idLivro', LivrosController.deletarLivro);
 
 routes.get('/estudante', EstudanteController.index);
 routes.post('/estudante', EstudanteController.novoEstudante);
-routes.put('estudante', EstudanteController.alterarEstudante);
-routes.delete('/estudante', EstudanteController.deletarEstudante);
+routes.put('/estudante/:rg', EstudanteController.alterarEstudante);
+routes.delete('/estudante/:rg', EstudanteController.deletarEstudante);
 
 routes.get('/emprestimo', EmprestimoController.index);
 routes.post('/emprestimo', EmprestimoController.novoEmprestimo);
-routes.delete('emprestimo', EmprestimoController.deletarEmprestimo);
+routes.put('/emprestimo', EmprestimoController.finalizarEmprestimo);
+routes.delete('/emprestimo/:codigo', EmprestimoController.deletarEmprestimo);
 
 module.exports = routes;
